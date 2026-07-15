@@ -10,13 +10,11 @@ export default function FormInput({
   onItemChange
 }) {
   const handleNopolChange = (e) => {
-    // Automatically convert to uppercase
     const val = e.target.value.toUpperCase();
     onChange('nopol', val);
   };
 
   const handleTahunChange = (e) => {
-    // Restrict to 4 digits
     const val = e.target.value.replace(/\D/g, '').slice(0, 4);
     onChange('tahunKendaraan', val);
   };
@@ -57,7 +55,6 @@ export default function FormInput({
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Nama Customer */}
           <div className="sm:col-span-2">
             <label htmlFor="namaCustomer" className="block text-xs font-semibold text-zinc-600 mb-1.5">
               Nama Customer
@@ -74,7 +71,6 @@ export default function FormInput({
             </div>
           </div>
 
-          {/* Jenis Kendaraan */}
           <div>
             <label htmlFor="jenisKendaraan" className="block text-xs font-semibold text-zinc-600 mb-1.5">
               Jenis Kendaraan
@@ -90,7 +86,6 @@ export default function FormInput({
             </select>
           </div>
 
-          {/* Model/Nama Kendaraan */}
           <div>
             <label htmlFor="modelKendaraan" className="block text-xs font-semibold text-zinc-600 mb-1.5">
               Nama / Model Kendaraan
@@ -107,7 +102,6 @@ export default function FormInput({
             </div>
           </div>
 
-          {/* Nopol */}
           <div>
             <label htmlFor="nopol" className="block text-xs font-semibold text-zinc-600 mb-1.5">
               Nomor Polisi (Nopol)
@@ -122,7 +116,6 @@ export default function FormInput({
             />
           </div>
 
-          {/* Tahun Kendaraan */}
           <div>
             <label htmlFor="tahunKendaraan" className="block text-xs font-semibold text-zinc-600 mb-1.5">
               Tahun Kendaraan
@@ -157,7 +150,7 @@ export default function FormInput({
           </button>
         </div>
 
-        {/* Desktop Table view for items */}
+        {/* Desktop Table */}
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left text-sm border-collapse">
             <thead>
@@ -198,19 +191,28 @@ export default function FormInput({
                       type="number"
                       min={1}
                       value={item.qty}
-                      onChange={(e) => onItemChange(item.id, 'qty', Math.max(1, parseInt(e.target.value, 10) || 1))}
-                      className="w-full border border-zinc-200 rounded-md py-1 text-center text-zinc-800 focus:outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 text-sm"
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        // Jika dihapus kosong, biarkan string kosong. Jika diisi, minimal 1.
+                        onItemChange(item.id, 'qty', val === '' ? '' : Math.max(1, parseInt(val, 10)));
+                      }}
+                      placeholder="0"
+                      className={`w-full border rounded-md py-1 text-center focus:outline-none focus:ring-1 text-sm transition-colors ${
+                        item.qty === '' 
+                          ? 'border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500' 
+                          : 'border-zinc-200 text-zinc-800 focus:border-zinc-900 focus:ring-zinc-900'
+                      }`}
                     />
                   </td>
                   <td className="py-3 px-2 text-right text-zinc-900 font-semibold text-sm">
-                    Rp {formatNumberWithSeparator(item.harga * item.qty) || '0'}
+                    Rp {formatNumberWithSeparator(item.harga * (Number(item.qty) || 0))}
                   </td>
                   <td className="py-3 px-2 text-center">
                     <button
                       type="button"
                       disabled={form.items.length <= 1}
                       onClick={() => onRemoveItem(item.id)}
-                      className={`text-zinc-400 hover:text-zinc-950 p-1.5 rounded-md hover:bg-zinc-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed`}
+                      className="text-zinc-400 hover:text-zinc-950 p-1.5 rounded-md hover:bg-zinc-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -221,7 +223,7 @@ export default function FormInput({
           </table>
         </div>
 
-        {/* Mobile List view for items */}
+        {/* Mobile List view */}
         <div className="md:hidden space-y-4">
           {form.items.map((item, index) => (
             <div key={item.id} className="border border-zinc-100 rounded-xl p-4 bg-zinc-50/50 space-y-3 relative">
@@ -268,8 +270,16 @@ export default function FormInput({
                     type="number"
                     min={1}
                     value={item.qty}
-                    onChange={(e) => onItemChange(item.id, 'qty', Math.max(1, parseInt(e.target.value, 10) || 1))}
-                    className="w-full bg-white border border-zinc-300 rounded-lg py-1.5 text-center text-zinc-800 focus:outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 text-sm"
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      onItemChange(item.id, 'qty', val === '' ? '' : Math.max(1, parseInt(val, 10)));
+                    }}
+                    placeholder="Wajib isi"
+                    className={`w-full bg-white border rounded-lg py-1.5 text-center focus:outline-none focus:ring-1 text-sm transition-colors ${
+                      item.qty === '' 
+                        ? 'border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500 placeholder-red-300' 
+                        : 'border-zinc-300 text-zinc-800 focus:border-zinc-900 focus:ring-zinc-900'
+                    }`}
                   />
                 </div>
               </div>
@@ -277,7 +287,7 @@ export default function FormInput({
               <div className="flex justify-between items-center border-t border-zinc-150/60 pt-2.5">
                 <span className="text-xs font-semibold text-zinc-500">Subtotal</span>
                 <span className="text-sm font-bold text-zinc-900">
-                  Rp {formatNumberWithSeparator(item.harga * item.qty) || '0'}
+                  Rp {formatNumberWithSeparator(item.harga * (Number(item.qty) || 0))}
                 </span>
               </div>
             </div>
